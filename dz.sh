@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#ass 
 log_dir="logs"
 backup_dir="$HOME/backup"
 report_file="$backup_dir/report.txt"
