@@ -47,5 +47,14 @@ fi
 #fich cheking empty logs
 log_files=$(find "logs" -name '*.log' -type f | wc -l )
 if [ "$log_files" -eq 0 ]; then
-  echo "Warning: No log filse in 'logs'" >&2
-fi 
+  echo "Warning: No log filse in '$logs'" >&2
+fi
+
+#fich protection against owerwriting archive
+counter=1
+original_name="$backup_file"
+while [[ -f "$backup_dir/$backup_file" ]]; do
+  backup_file="${original_name%.*}_$counter.tar.zg"
+  counter=$((counter+1))
+done
+
