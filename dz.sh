@@ -1,6 +1,26 @@
 #!/bin/bash
 
-#ass 
+#ass
+if command -v mail &> /dev/null; then
+  mail -s "Backup Report" EMAIL < "$report_file"
+fi
+
+EMAIL=""
+USE_INTARAKTIVE_EMAIL=true 
+
+send_email_report(){
+local email_to=$1
+if [ -n "$email_to" ] && command -v mail &> /dev/null; then 
+  if mail -s "backup Report $(date +%F)" "email_to" < "report_file"; then
+    echo "report send on: $email_to" >&2
+else
+  echo "Error send on: $email_to" >&2
+fi
+elif [ -n "$email_to" ]; then
+  echo "mail client not installed" >&2
+fi  
+}
+
 log_dir="logs"
 backup_dir="$HOME/backup"
 report_file="$backup_dir/report.txt"
@@ -58,3 +78,21 @@ while [[ -f "$backup_dir/$backup_file" ]]; do
   counter=$((counter+1))
 done
 
+#fich send the report by email
+for arg in "$@"; do 
+  if [[ "$arg" == "--email="* ]]; then
+    EMAIL="${arg#*=}"
+    echo "use email : $EMAIL"
+  fi 
+done
+if [ "USE_INTARAKTIVE_EMAIL" = true ] && [ -z "$EMAIL" ]; then
+  read -p "setnd txt" user_email   
+if [ -n "$user_email" ]; then
+  EMAIL = "$user_email"
+    fi
+
+if [ -z "$EMAIL" ] && [ -f "$backup_dir/.backup_email" ]; then
+    EMAIL=$(head -n 1 "$backup_dir/.backup_email")
+    echo "Используется сохраненный email: $EMAIL"
+fi
+ send_email_report "$EMAIL"
