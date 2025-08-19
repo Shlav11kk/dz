@@ -21,63 +21,63 @@ send_email_report() {
     fi  
 }
 
-# Support for parameter for log folder - MOVED TO TOP
+
 if [ "$#" -eq 1 ]; then 
     log_dir="$1"
-elif [ "$#" -gt 1 ]; then  # Fixed: should check for more than 1 argument
+elif [ "$#" -gt 1 ]; then 
     echo "Usage: $0 [log_dir]" >&2
     exit 1
 fi 
 
-# Validate log directory - FIXED: use variable instead of hardcoded "logs"
+
 if [ ! -d "$log_dir" ]; then 
     echo "Error: Directory '$log_dir' does not exist!" >&2
     exit 1 
 fi 
 
-# Checking empty logs - MOVED BEFORE archive creation
-log_files=$(find "$log_dir" -name '*.log' -type f | wc -l)  # Fixed: use variable
+
+log_files=$(find "$log_dir" -name '*.log' -type f | wc -l)  
 if [ "$log_files" -eq 0 ]; then
     echo "Warning: No log files in '$log_dir'" >&2 
 fi
 
-# Create backup directory
+
 mkdir -p "$backup_dir" || {
     echo "Error: Failed to create backup directory '$backup_dir'" >&2 
     exit 1
 }
 
-# Protection against overwriting archive - MOVED BEFORE archive creation
+
 counter=1
 original_name="$backup_file"
-while [ -f "$backup_dir/$backup_file" ]; do  # Fixed: use [ ] instead of [[ ]] for compatibility
-    backup_file="${original_name%.*}_$counter.tar.gz"  # Fixed: .zg -> .gz
+while [ -f "$backup_dir/$backup_file" ]; do
+    backup_file="${original_name%.*}_$counter.tar.gz" 
     counter=$((counter+1))
 done
 
-# Create archive
+
 if ! find "$log_dir" -name '*.log' -type f -print0 | tar -czvf "$backup_dir/$backup_file" --null -T -; then 
     echo "Error: Failed to create backup archive" >&2  # Fixed typo
     exit 1
 fi
 
-# Generate report
+
 file_count=$(tar -tf "$backup_dir/$backup_file" | wc -l)
 archive_size=$(du -h "$backup_dir/$backup_file" | awk '{print $1}')
 {
     echo "=== Backup Report ==="
     echo "Date: $(date +"%Y-%m-%d %H:%M:%S")"
-    echo "Archive: $backup_file"  # Fixed spelling
+    echo "Archive: $backup_file"  
     echo "Files in archive: $file_count"
-    echo "Size: $archive_size"  # Added colon for consistency
+    echo "Size: $archive_size"  
 } > "$report_file" || {
-    echo "Error: Failed to create report file" >&2  # Fixed message
+    echo "Error: Failed to create report file" >&2  
     exit 1
 }
 
 echo "Backup completed successfully. Report: $report_file"
 
-# Email processing - FIXED and IMPROVED
+
 for arg in "$@"; do 
     if [[ "$arg" == "--email="* ]]; then
         EMAIL="${arg#*=}"
@@ -97,7 +97,7 @@ if [ -z "$EMAIL" ] && [ -f "$backup_dir/.backup_email" ]; then
     echo "Using saved email: $EMAIL"
 fi
 
-# Send email if address is provided
+
 if [ -n "$EMAIL" ]; then
     send_email_report "$EMAIL"
     
