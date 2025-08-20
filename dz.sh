@@ -6,7 +6,7 @@ backup_dir="$HOME/backup"
 report_file="$backup_dir/report.txt"
 backup_file="backup-$(date +%Y-%m-%d).tar.gz"
 EMAIL=""
-USE_INTARAKTIVE_EMAIL=true
+USE_INTERACTIVE_EMAIL=true
 
 send_email_report() {
   local email_to=$1
@@ -37,7 +37,7 @@ fi
 
 
 log_files=$(find "$log_dir" -name '*.log' -type f | wc -l)  
-if [ "$log_files" -eq 0 ]; then
+if [ "$log_files" -eq exit 0 ]; then
     echo "Warning: No log files in '$log_dir'" >&2 
 fi
 
