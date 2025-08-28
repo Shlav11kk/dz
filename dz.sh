@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#ass
-log_dir="logs"
+log_dir="${1:-logs}"
 backup_dir="$HOME/backup"
 report_file="$backup_dir/report.txt"
 backup_file="backup-$(date +%Y-%m-%d).tar.gz"
